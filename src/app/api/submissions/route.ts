@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { submissionSchema } from "@/lib/submissionSchema";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
+import { notifyTelegram } from "@/lib/telegram";
 
 export async function POST(request: Request) {
   let body: unknown;
@@ -44,6 +45,8 @@ export async function POST(request: Request) {
       console.error("Failed to insert submission:", error.message);
       return NextResponse.json({ error: "db_error" }, { status: 500 });
     }
+
+    await notifyTelegram(data);
 
     return NextResponse.json({ ok: true }, { status: 201 });
   } catch (err) {
